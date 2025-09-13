@@ -109,4 +109,4 @@ def save_to_csv(rows, filename):
 
 ## Code Reference
 
-- Main scraper script: [![Code](https://img.shields.io/badge/View_Code-blue?style=for-the-badge&logo=github)](https://github.com/dineshmiriyala/scrape-labs/blob/main/src/scrape_wework.py)
+- Main scraper script: [![Code](https://img.shields.io/badge/View_Code-blue?style=for-the-badge&logo=github)](https://github.com/dineshmiriyala/scrape-labs/blob/main/We_Work_Remotely/src/we_work_remotely_scraping.py)
