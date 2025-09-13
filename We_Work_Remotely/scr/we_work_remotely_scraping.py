@@ -194,7 +194,7 @@ def scraped_data_parser(job_data):
 def save_to_excel(df):
     today = datetime.now().strftime("%Y-%m-%d")
     # going to desired folder root/data/we_work
-    base_path = os.path.join(os.path.dirname(__file__), "..", "data", "we_work", today)
+    base_path = os.path.join(os.path.dirname(__file__), "..", "we_work_remotely", "data", today)
     # create folder if it doesn't exist
     os.makedirs(base_path, exist_ok=True)
 
