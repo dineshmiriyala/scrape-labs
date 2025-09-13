@@ -1,4 +1,3 @@
-from PIL.GifImagePlugin import getheader
 from bs4 import BeautifulSoup
 import requests
 from datetime import datetime, timedelta
@@ -10,6 +9,7 @@ import html
 import json
 import time
 import random
+
 
 # Helper functions
 
@@ -38,6 +38,7 @@ def rotate_header():
         "Connection": "keep-alive",
     }
 
+
 def robust_response(url, max_retries=3):
     """
     This function is to basically deal with number of
@@ -45,11 +46,11 @@ def robust_response(url, max_retries=3):
     to the next one
     :param url:
     :param max_retries:
-    :return:
+    :return: gives the response from url after successful request
     """
     for attempt in range(max_retries):
         try:
-            response = requests.get(url, headers=rotate_header(), timeout = 10)
+            response = requests.get(url, headers=rotate_header(), timeout=10)
 
             if response.status_code == 200:
                 return response
@@ -64,7 +65,6 @@ def robust_response(url, max_retries=3):
         time.sleep(sleep_time)
     print(f"Failed to get response from {url} after {max_retries} attempts")
     return None
-
 
 
 def parse_relative_date(date_string):
@@ -89,15 +89,12 @@ def scraper_main_page(url):
     :param url: URL
     :return: csv with urls
     """
-    try:
-        response = robust_response(url)
-        soup = BeautifulSoup(response.text, "html.parser")
-        # only using the new-listing-container class
-        jobs = soup.find_all("li",
-                             class_="new-listing-container")
-    except Exception as error:
-        print(f"Coudn't scrape main page: {error}")
 
+    response = robust_response(url)
+    soup = BeautifulSoup(response.text, "html.parser")
+    # only using the new-listing-container class
+    jobs = soup.find_all("li",
+                         class_="new-listing-container")
 
     jobs_links = []
     for job in jobs:
@@ -110,16 +107,25 @@ def scraper_main_page(url):
     print(f"Found {len(jobs_links)} links")
     return jobs_links
 
+
+def description_parser(description):
+    """
+    This function will parse the description of the job
+    :param description: Takes in html of description
+    :return: Clean text
+    """
+    soup = BeautifulSoup(description, "html.parser")
+
+    clean_text = soup.get_text(separator= " ", strip=True )
+
+    clean_text = html.unescape(clean_text)
+
+    return clean_text
+
 def scrape_job_pages(url):
-    try:
-        response = robust_response(url)
-        soup = BeautifulSoup(response.text, "html.parser")
-        script = soup.find("script", type="application/ld+json")
-    except Exception as error:
-        print(f"Couldn't scrape jobs page {url}: {error}")
-        print('retrying in 5 seconds...')
-        time.sleep(5)
-        return None
+    response = robust_response(url)
+    soup = BeautifulSoup(response.text, "html.parser")
+    script = soup.find("script", type="application/ld+json")
 
     try:
         raw = html.unescape(script.string)
@@ -145,7 +151,7 @@ def scrape_job_pages(url):
             job_data = json.loads(raw)
             return ({
                 "title": job_data["title"],
-                "description": job_data["description"],
+                "description": description_parser(job_data["description"]),
                 "job_url": url,
                 "datePosted": job_data["datePosted"],
                 "validThrough": job_data["validThrough"],
@@ -165,67 +171,15 @@ def scrape_job_pages(url):
         return None
 
 
-
-
-"""Old Method
-This was the old logic, only scraped few details.
-switched to more complex, nested approach, where each 
-job will be scraped with even more detail.
-
-def scraper_main_page(url):
-
-    response = requests.get(url)
-    if response.status_code == 200:
-        print("Successfully retrieved page")
-        soup = BeautifulSoup(response.text, "html.parser")
-
-        # new jobs are wrapped inside the new-listing-container
-        jobs = soup.find_all("li",
-                             class_="new-listing-container")
-
-    else:
-        print("Failed to scrape")
-        print("status code: " + str(response.status_code))
-        return None
-
-    job_data = []
-
-    for job in jobs:
-        title = job.find("h3", class_="new-listing__header__title")
-        company = job.find("p", class_="new-listing__company-name")
-        location = job.find("p", class_=
-        "new-listing__company-headquarters")
-        links = job.find_all("a", href=True)
-        date = (job.find("p",
-                         class_="new-listing__header__icons__date")
-                .text.strip())
-        date_new = parse_relative_date(date)
-
-        if title or company or links:
-            job_data.append({
-                "title": title.text.strip(),
-                "company": company.text.strip(),
-                "location": location.text.strip() if location else None,
-                "date": date_new,
-                "url": "https://www.weworkremotely.com"
-                       + links[1]["href"] if links[1] else None,
-                "date_posted": date_new
-            })
-    print("Successfully scraped, Number of jobs: " +
-          str(len(job_data)))
-    return pd.DataFrame(job_data)
-"""
-
-
 def plot_date_wise_postings(df):
     """
     Plot posting dates
-    :param df:
+    :param df: Only the dataframe with date column should be passed
     :return: None
     """
-    df["date_posted"] = pd.to_datetime(df["date_posted"],
-                                       errors="coerce")
-    df["date_posted"].dt.date.value_counts().sort_index().plot(kind="bar")
+    df = pd.to_datetime(df,
+                        errors="coerce")
+    df.dt.date.value_counts().sort_index().plot(kind="bar")
 
 
 def scraped_data_parser(job_data):
@@ -245,33 +199,30 @@ def save_to_excel(df):
     os.makedirs(base_path, exist_ok=True)
 
     # Full File path
-    csv_path = os.path.join(base_path, "we_work.csv")
-    parquet_path = os.path.join(base_path, "we_work.parquet")
-    xlsx_path = os.path.join(base_path, "we_work.xlsx")
+    csv_path = os.path.join(base_path, f"we_work_{today}.csv")
 
     # save files
-    df.to_csv(csv_path, index=False)
+    df.to_csv(csv_path, index=True)
     print(f"Wrote CSV to {csv_path}")
-    df.to_parquet(parquet_path, index=False)
-    print(f"Wrote parquet to {parquet_path}")
-    df.to_excel(xlsx_path, index=False)
-    print(f"Wrote excel to {xlsx_path}")
     return None
 
 
 if __name__ == "__main__":
-    url = "https://weworkremotely.com/remote-jobs"
     start_time = time.perf_counter()
+
+    base_url = "https://www.weworkremotely.com/remote-jobs"
+
     try:
-        links = scraper_main_page(url)
         scraped_data = []
-        for link in links:
+        for link in scraper_main_page(base_url):
             scraped_data.append(scrape_job_pages(link))
+
         df = pd.DataFrame(scraped_data)
-        print(f"Stats of scraped data: rows: {len(df)} and columns: {len(df.columns)} ")
+        print(f"Stats of scraped data: rows={len(df)}, cols={len(df.columns)}")
         save_to_excel(df)
     except Exception as error:
         print(f"{error}")
-    elasped = time.perf_counter() - start_time
-    minutes, seconds = divmod(elasped, 60)
-    print(f"Scraping completed in {int(minutes)} min {seconds:.2f} sec")
+
+    elapsed_time = time.perf_counter() - start_time
+    minutes, seconds = divmod(elapsed_time, 60)
+    print(f"Scraped completed in {int(minutes)} minutes, {seconds:.2f} seconds")
