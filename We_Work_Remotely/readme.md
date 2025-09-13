@@ -104,7 +104,7 @@ def save_to_csv(rows, filename):
     python src/scrape_wework.py
     ```
 3. **Find your results:**
-    - Scraped CSV file: [![CSV](https://img.shields.io/badge/View_CSV-green?style=for-the-badge&logo=csv)](https://github.com/dineshmiriyala/scrape-labs/blob/main/data/2025-09-13/we_work_2025-09-13.csv)
+    - Scraped CSV file: [![CSV](https://img.shields.io/badge/View_CSV-green?style=for-the-badge&logo=csv)](https://github.com/dineshmiriyala/scrape-labs/blob/main/We_Work_Remotely/data/we_work/2025-09-13/we_work_2025-09-13.csv)
     - Screenshot: [![View_Screenshot](https://img.shields.io/badge/View_Screenshot-blue?style=for-the-badge)](https://github.com/dineshmiriyala/scrape-labs/blob/main/We_Work_Remotely/data/we_work/2025-09-13/output.png)
 
 ## Code Reference
