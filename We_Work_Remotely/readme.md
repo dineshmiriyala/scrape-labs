@@ -80,11 +80,11 @@ def save_to_csv(rows, filename):
 
 ## Sample Output
 
-| Title                   | Company          | Location        | Date Posted | URL                                                |
-|-------------------------|------------------|-----------------|-------------|----------------------------------------------------|
-| Senior Python Engineer  | Acme Corp        | Worldwide       | 2024-06-12  | https://weworkremotely.com/remote-jobs/acme-python |
-| Frontend Developer      | Widget Studios   | Europe Only     | 2024-06-11  | https://weworkremotely.com/remote-jobs/widget-frontend |
-| DevOps Specialist       | Cloudify         | USA Only        | 2024-06-10  | https://weworkremotely.com/remote-jobs/cloudify-devops |
+| title                   | description                            | job_url                                                      | datePosted  | validThrough | occupationalCategory | salary_min | salary_max | salary_currency | companyName      | companyAddress           |
+|-------------------------|----------------------------------------|--------------------------------------------------------------|-------------|--------------|---------------------|------------|------------|-----------------|------------------|--------------------------|
+| Senior Python Engineer  | Lead backend systems, mentor team...   | https://weworkremotely.com/remote-jobs/acme-python           | 2024-06-12  | 2024-07-12   | Software Development | 120000     | 150000     | USD             | Acme Corp        | Remote, Worldwide        |
+| Frontend Developer      | Build modern UIs in React, colla...    | https://weworkremotely.com/remote-jobs/widget-frontend       | 2024-06-11  | 2024-07-11   | Frontend            | 70000      | 90000      | EUR             | Widget Studios   | Remote, Europe Only      |
+| DevOps Specialist       | Maintain CI/CD pipelines, impro...     | https://weworkremotely.com/remote-jobs/cloudify-devops       | 2024-06-10  | 2024-07-10   | DevOps              | 95000      | 120000     | USD             | Cloudify         | Remote, USA Only         |
 
 ## Runtime Information
 
